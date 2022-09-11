@@ -1,23 +1,30 @@
 package cuisine.de.lapin.simpleblockchain
 
-import cuisine.de.lapin.simpleblockchain.model.BlockChain
-import cuisine.de.lapin.simpleblockchain.model.Event
+import cuisine.de.lapin.simpleblockchain.blockchain.model.Block
+import cuisine.de.lapin.simpleblockchain.blockchain.model.BlockChain
+import cuisine.de.lapin.simpleblockchain.blockchain.model.Event
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class BlockChainTest {
-    private fun createBlockChain(): BlockChain {
+    private suspend fun createBlockChain(): BlockChain {
         val timeStamp = 0L
         val difficulty = 1
-        return BlockChain(difficulty = difficulty, timeStamp = timeStamp)
+        val blockChain = BlockChain(difficulty)
+        blockChain.initChain(timeStamp)
+        return blockChain
+
     }
+
     @Test
-    fun is_BlockChain_Created() {
+    fun is_BlockChain_Created() = runTest(UnconfinedTestDispatcher()) {
         val blockChain = createBlockChain()
         assert(blockChain.isValidChain())
     }
 
     @Test
-    fun is_BlockChain_FirstItem() {
+    fun is_BlockChain_FirstItem() = runTest(UnconfinedTestDispatcher()) {
         val blockChain = createBlockChain()
         val timeStamp = 0L
         val anticipatedHash = "0657f235d2eee7d7f1c914044ff16c22904e0232052cac41f08b4d76ccf4e28a"
@@ -27,7 +34,7 @@ class BlockChainTest {
     }
 
     @Test
-    fun is_BlockChain_Added() {
+    fun is_BlockChain_Added() = runTest(UnconfinedTestDispatcher()) {
         val timeStamp = 0L
         val blockChain = createBlockChain()
 
@@ -42,5 +49,13 @@ class BlockChainTest {
         assert(anticipatedHash2 == createdBlock2.hash)
 
         assert(blockChain.isValidChain())
+    }
+
+    @Test
+    fun createGenesisBlockAsync() = runTest(UnconfinedTestDispatcher()) {
+        val blockChain = BlockChain.createBlockChain(this, 1, 0L)
+        blockChain.setOnReadyListener {
+            assert(blockChain.isValidChain())
+        }
     }
 }

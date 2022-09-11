@@ -1,54 +1,61 @@
-package cuisine.de.lapin.simpleblockchain.model
+package cuisine.de.lapin.simpleblockchain.blockchain.model
 
 import com.google.gson.Gson
 import cuisine.de.lapin.simpleblockchain.utils.sha256
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class BlockChain(difficulty: Int, timeStamp: Long = System.currentTimeMillis()) {
+class BlockChain(difficulty: Int) {
     private val blocks = ArrayList<Block>()
-    private val startZeros = START_WITH.repeat(difficulty)
+    private val startZeros = ZERO.repeat(difficulty)
+    private var onReady: (() -> Unit)? = null
 
-    init {
-        createBlock(
+    suspend fun initChain(timeStamp: Long = System.currentTimeMillis()): Block {
+        val block = createBlock(
             event = Event(GENESIS_EVENT),
             timeStamp = timeStamp
         )
+
+        onReady?.invoke()
+
+        return block
     }
 
-    fun createBlock(
+    suspend fun createBlock(
         event: Event,
         timeStamp: Long = System.currentTimeMillis()
     ): Block {
-        var nonce = 0L
         val blockData = ProofData(
             index = (getPreviousBlock()?.index?.plus(1)) ?: 0,
             timeStamp = timeStamp,
             event = event,
-            previousHash = getPreviousBlock()?.hash ?: "0"
+            previousHash = getPreviousBlock()?.hash ?: ZERO,
+            nonce = INIT_NONCE
         )
 
         while (true) {
-            blockData.nonce = nonce
             if (Gson().toJson(blockData).sha256().startsWith(startZeros)) {
                 break
             } else {
-                nonce++
+                blockData.nonce++
             }
         }
 
-        val hash = Gson().toJson(blockData).sha256()
-
-        val block = blockData.toBlock(hash)
-
-        blocks.add(block)
-
-        println(Gson().toJson(block))
-
-        return block
+        return blockData.toBlock(Gson().toJson(blockData).sha256()).apply {
+            blocks.add(this)
+        }
     }
 
     private fun getPreviousBlock(): Block? {
         return blocks.lastIndex.takeIf { it >= 0 }?.let {
             blocks[it]
+        }
+    }
+
+    fun setOnReadyListener(onReady: (() -> Unit)?) {
+        this.onReady = onReady
+        if (blocks.size > 0) {
+            onReady?.invoke()
         }
     }
 
@@ -78,14 +85,24 @@ class BlockChain(difficulty: Int, timeStamp: Long = System.currentTimeMillis()) 
         }
     }
 
-    fun getAllBlocks(): List<Block> {
-        println(Gson().toJson(blocks))
-        return blocks
-    }
+    fun getAllBlocks(): List<Block> = blocks
 
     companion object {
-        private const val START_WITH = "0"
+        private const val ZERO = "0"
         private const val GENESIS_EVENT = "GenesisEvent"
+        private const val INIT_NONCE = 0L
+
+        fun createBlockChain(
+            coroutineScope: CoroutineScope,
+            difficulty: Int,
+            timeStamp: Long = System.currentTimeMillis()
+        ): BlockChain {
+            return BlockChain(difficulty).apply {
+                coroutineScope.launch {
+                    initChain(timeStamp)
+                }
+            }
+        }
     }
 
 }

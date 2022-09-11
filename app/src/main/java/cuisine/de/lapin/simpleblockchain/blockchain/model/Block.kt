@@ -1,11 +1,11 @@
-package cuisine.de.lapin.simpleblockchain.model
+package cuisine.de.lapin.simpleblockchain.blockchain.model
 
 data class ProofData(
     val index: Int,
     val timeStamp: Long,
     val event: Event,
     val previousHash: String,
-    var nonce: Long = 0
+    var nonce: Long = 0L
 )
 
 class Block (

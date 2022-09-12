@@ -2,6 +2,9 @@ package cuisine.de.lapin.simpleblockchain.utils
 
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 fun String.sha256(): String {
     return BigInteger(
@@ -13,3 +16,5 @@ fun String.sha256(): String {
         .toString(16)
         .padStart(64, '0')
 }
+
+fun LocalDateTime.toLongTimestamp(zoneId: ZoneId = ZoneId.systemDefault()) = ZonedDateTime.of(this, zoneId).toInstant().toEpochMilli()

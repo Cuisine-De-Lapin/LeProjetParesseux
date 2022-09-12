@@ -16,9 +16,11 @@ class Block (
     val nonce: Long,
     val hash: String)
 
-data class Event(
+abstract class Event(
     val message: String
 )
+
+class GenesisEvent(message: String): Event(message)
 
 fun Block.toProofData(): ProofData {
     return ProofData(

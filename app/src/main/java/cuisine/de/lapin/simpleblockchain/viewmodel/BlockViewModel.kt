@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cuisine.de.lapin.simpleblockchain.blockchain.model.Block
 import cuisine.de.lapin.simpleblockchain.blockchain.model.Event
+import cuisine.de.lapin.simpleblockchain.model.BabyEvent
+import cuisine.de.lapin.simpleblockchain.model.BabyEventType
 import cuisine.de.lapin.simpleblockchain.repository.BlockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,13 +17,16 @@ import javax.inject.Inject
 @HiltViewModel
 class BlockViewModel @Inject constructor(
     private val repository: BlockRepository
-): ViewModel() {
+) : ViewModel() {
     private val _blockChain = MutableLiveData<List<Block>>()
     val blockChain: LiveData<List<Block>> = _blockChain
 
-    fun createBlock(eventContent: String) {
+    fun createBlock(selectedType: BabyEventType, timeStamp: Long, text: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.createBlock(Event(eventContent), System.currentTimeMillis())
+            repository.createBlock(
+                BabyEvent(selectedType, timeStamp, text),
+                System.currentTimeMillis()
+            )
             updateBlockChain()
         }
     }

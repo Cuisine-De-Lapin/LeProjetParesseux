@@ -12,7 +12,7 @@ class BlockChain(difficulty: Int) {
 
     suspend fun initChain(timeStamp: Long = System.currentTimeMillis()): Block {
         val block = createBlock(
-            event = Event(GENESIS_EVENT),
+            event = GenesisEvent(GENESIS_EVENT),
             timeStamp = timeStamp
         )
 

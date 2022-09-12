@@ -9,7 +9,7 @@ import org.junit.Test
 
 class BlockChainTest {
     private suspend fun createBlockChain(): BlockChain {
-        val timeStamp = 0L
+        val timeStamp = 91152000L // 1972.11.21. 00:00:00 GMT+0000
         val difficulty = 1
         val blockChain = BlockChain(difficulty)
         blockChain.initChain(timeStamp)
@@ -26,25 +26,25 @@ class BlockChainTest {
     @Test
     fun is_BlockChain_FirstItem() = runTest(UnconfinedTestDispatcher()) {
         val blockChain = createBlockChain()
-        val timeStamp = 0L
-        val anticipatedHash = "0657f235d2eee7d7f1c914044ff16c22904e0232052cac41f08b4d76ccf4e28a"
-        val createdBlock = blockChain.createBlock(event = Event("First Block"), timeStamp = timeStamp)
+        val timeStamp = 91152000L // 1972.11.21. 00:00:00 GMT+0000
+        val anticipatedHash = "0699d0168c636520f53d277c59912b731dd800ca54363d168e76db9090cd8c36"
+        val createdBlock = blockChain.createBlock(event = TestEvent("First Block"), timeStamp = timeStamp)
 
         assert(blockChain.isValidChain() && anticipatedHash == createdBlock.hash)
     }
 
     @Test
     fun is_BlockChain_Added() = runTest(UnconfinedTestDispatcher()) {
-        val timeStamp = 0L
+        val timeStamp = 91152000L // 1972.11.21. 00:00:00 GMT+0000
         val blockChain = createBlockChain()
 
-        val anticipatedHash1 = "0657f235d2eee7d7f1c914044ff16c22904e0232052cac41f08b4d76ccf4e28a"
-        val createdBlock1 = blockChain.createBlock(Event("First Block"), timeStamp = timeStamp)
+        val anticipatedHash1 = "0699d0168c636520f53d277c59912b731dd800ca54363d168e76db9090cd8c36"
+        val createdBlock1 = blockChain.createBlock(TestEvent("First Block"), timeStamp = timeStamp)
 
         assert(anticipatedHash1 == createdBlock1.hash)
 
-        val anticipatedHash2 = "03f481a260bac7e8ee334086d839979e3a720a65ec6125392cf1029775a1eaad"
-        val createdBlock2 = blockChain.createBlock(Event("Second Block"), timeStamp = timeStamp)
+        val anticipatedHash2 = "0c0392701f062f833c7051bbe7897dc2936bbf0e6a25946b971b1d7b1e829668"
+        val createdBlock2 = blockChain.createBlock(TestEvent("Second Block"), timeStamp = timeStamp)
 
         assert(anticipatedHash2 == createdBlock2.hash)
 
@@ -53,9 +53,13 @@ class BlockChainTest {
 
     @Test
     fun createGenesisBlockAsync() = runTest(UnconfinedTestDispatcher()) {
-        val blockChain = BlockChain.createBlockChain(this, 1, 0L)
+        val timeStamp = 91152000L // 1972.11.21. 00:00:00 GMT+0000
+        val difficulty = 1
+        val blockChain = BlockChain.createBlockChain(this, difficulty, timeStamp)
         blockChain.setOnReadyListener {
             assert(blockChain.isValidChain())
         }
     }
+
+    inner class TestEvent(message: String): Event(message)
 }

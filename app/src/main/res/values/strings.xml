@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">SimpleBlockChain</string>
+    <string name="create_block">Create Block</string>
+    <string name="block_detail">Detail</string>
+    <string name="block_type">Type</string>
+    <string name="date_format">yyyy-MM-dd</string>
+    <string name="hour_format">HH:mm</string>
 </resources>

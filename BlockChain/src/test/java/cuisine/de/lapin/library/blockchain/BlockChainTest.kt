@@ -1,8 +1,6 @@
-package cuisine.de.lapin.simpleblockchain
+package cuisine.de.lapin.library.blockchain
 
-import cuisine.de.lapin.simpleblockchain.blockchain.model.Block
-import cuisine.de.lapin.simpleblockchain.blockchain.model.BlockChain
-import cuisine.de.lapin.simpleblockchain.blockchain.model.Event
+import cuisine.de.lapin.library.blockchain.model.BlockChain
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -27,8 +25,8 @@ class BlockChainTest {
     fun is_BlockChain_FirstItem() = runTest(UnconfinedTestDispatcher()) {
         val blockChain = createBlockChain()
         val timeStamp = 91152000L // 1972.11.21. 00:00:00 GMT+0000
-        val anticipatedHash = "0699d0168c636520f53d277c59912b731dd800ca54363d168e76db9090cd8c36"
-        val createdBlock = blockChain.createBlock(event = TestEvent("First Block"), timeStamp = timeStamp)
+        val anticipatedHash = "0519be7410980961d2fd8dfab92f5433dc2448424e8d6b2eddab20b8a25ebf11"
+        val createdBlock = blockChain.createBlock(content = TestEvent("First Block"), timeStamp = timeStamp)
 
         assert(blockChain.isValidChain() && anticipatedHash == createdBlock.hash)
     }
@@ -38,12 +36,12 @@ class BlockChainTest {
         val timeStamp = 91152000L // 1972.11.21. 00:00:00 GMT+0000
         val blockChain = createBlockChain()
 
-        val anticipatedHash1 = "0699d0168c636520f53d277c59912b731dd800ca54363d168e76db9090cd8c36"
+        val anticipatedHash1 = "0519be7410980961d2fd8dfab92f5433dc2448424e8d6b2eddab20b8a25ebf11"
         val createdBlock1 = blockChain.createBlock(TestEvent("First Block"), timeStamp = timeStamp)
 
         assert(anticipatedHash1 == createdBlock1.hash)
 
-        val anticipatedHash2 = "0c0392701f062f833c7051bbe7897dc2936bbf0e6a25946b971b1d7b1e829668"
+        val anticipatedHash2 = "074ecc218cd216782e24f38c77ede975e052ea50fe8e0461246e6cc9d7bd8b9c"
         val createdBlock2 = blockChain.createBlock(TestEvent("Second Block"), timeStamp = timeStamp)
 
         assert(anticipatedHash2 == createdBlock2.hash)
@@ -61,5 +59,5 @@ class BlockChainTest {
         }
     }
 
-    inner class TestEvent(message: String): Event(message)
+    inner class TestEvent(message: String)
 }

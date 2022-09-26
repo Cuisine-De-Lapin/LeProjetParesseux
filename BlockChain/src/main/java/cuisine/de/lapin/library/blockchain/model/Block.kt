@@ -1,9 +1,9 @@
-package cuisine.de.lapin.simpleblockchain.blockchain.model
+package cuisine.de.lapin.library.blockchain.model
 
 data class ProofData(
     val index: Int,
     val timeStamp: Long,
-    val event: Event,
+    val content: Any,
     val previousHash: String,
     var nonce: Long = 0L
 )
@@ -11,22 +11,18 @@ data class ProofData(
 class Block (
     val index: Int,
     val timeStamp: Long,
-    val event: Event,
+    val content: Any,
     val previousHash: String,
     val nonce: Long,
     val hash: String)
 
-abstract class Event(
-    val message: String
-)
-
-class GenesisEvent(message: String): Event(message)
+class Genesis(message: String)
 
 fun Block.toProofData(): ProofData {
     return ProofData(
         index = index,
         timeStamp = timeStamp,
-        event = event,
+        content = content,
         previousHash = previousHash,
         nonce = nonce
     )
@@ -36,7 +32,7 @@ fun ProofData.toBlock(hash: String): Block {
     return Block(
         index = index,
         timeStamp = timeStamp,
-        event = event,
+        content = content,
         previousHash = previousHash,
         nonce = nonce,
         hash = hash

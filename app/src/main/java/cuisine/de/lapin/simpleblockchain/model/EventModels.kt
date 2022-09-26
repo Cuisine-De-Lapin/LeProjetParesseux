@@ -1,15 +1,17 @@
 package cuisine.de.lapin.simpleblockchain.model
 
 import com.google.gson.annotations.SerializedName
-import cuisine.de.lapin.simpleblockchain.blockchain.model.Event
 
 class BabyEvent(
     @SerializedName("type")
     val type: BabyEventType,
     @SerializedName("eventTime")
     val eventTime: Long,
-    detail: String
-) : Event(detail)
+    @SerializedName("amount")
+    val amount: Double,
+    @SerializedName("comment")
+    val comment: String
+)
 
 enum class BabyEventType {
     @SerializedName("Pee")

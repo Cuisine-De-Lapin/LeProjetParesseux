@@ -16,5 +16,3 @@ fun String.sha256(): String {
         .toString(16)
         .padStart(64, '0')
 }
-
-fun LocalDateTime.toLongTimestamp(zoneId: ZoneId = ZoneId.systemDefault()) = ZonedDateTime.of(this, zoneId).toInstant().toEpochMilli()

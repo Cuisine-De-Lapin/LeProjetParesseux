@@ -1,4 +1,4 @@
-package cuisine.de.lapin.simpleblockchain.blockchain.model
+package cuisine.de.lapin.library.blockchain.model
 
 import com.google.gson.Gson
 import cuisine.de.lapin.simpleblockchain.utils.sha256
@@ -12,7 +12,7 @@ class BlockChain(difficulty: Int) {
 
     suspend fun initChain(timeStamp: Long = System.currentTimeMillis()): Block {
         val block = createBlock(
-            event = GenesisEvent(GENESIS_EVENT),
+            content = Genesis(GENESIS_EVENT),
             timeStamp = timeStamp
         )
 
@@ -22,13 +22,13 @@ class BlockChain(difficulty: Int) {
     }
 
     suspend fun createBlock(
-        event: Event,
+        content: Any,
         timeStamp: Long = System.currentTimeMillis()
     ): Block {
         val blockData = ProofData(
             index = (getPreviousBlock()?.index?.plus(1)) ?: 0,
             timeStamp = timeStamp,
-            event = event,
+            content = content,
             previousHash = getPreviousBlock()?.hash ?: ZERO,
             nonce = INIT_NONCE
         )

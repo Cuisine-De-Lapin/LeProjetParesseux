@@ -1,7 +1,7 @@
 package cuisine.de.lapin.simpleblockchain.hilt
 
 import cuisine.de.lapin.simpleblockchain.BuildConfig
-import cuisine.de.lapin.simpleblockchain.blockchain.model.BlockChain
+import cuisine.de.lapin.library.blockchain.model.BlockChain
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

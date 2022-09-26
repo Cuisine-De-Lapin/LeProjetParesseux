@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,23 +33,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.google.gson.GsonBuilder
-import cuisine.de.lapin.simpleblockchain.blockchain.model.Event
-import cuisine.de.lapin.simpleblockchain.model.BabyEvent
 import cuisine.de.lapin.simpleblockchain.model.BabyEventType
 import cuisine.de.lapin.simpleblockchain.ui.theme.SimpleBlockChainTheme
 import cuisine.de.lapin.simpleblockchain.utils.toLongTimestamp
 import cuisine.de.lapin.simpleblockchain.viewmodel.BlockViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
@@ -84,7 +81,8 @@ fun showBlockChain(viewModel: BlockViewModel) {
 
 @Composable
 fun InputBlock(viewModel: BlockViewModel) {
-    var text by remember { mutableStateOf("") }
+    var comment by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     val types = BabyEventType.values()
     var selectedType by remember { mutableStateOf(BabyEventType.MEAL) }
@@ -98,20 +96,37 @@ fun InputBlock(viewModel: BlockViewModel) {
 
     Row {
         TextField(
-            value = text,
-            onValueChange = { value -> text = value },
+            value = amount,
+            onValueChange = { value -> amount = value },
             label = {
                 Text(
-                    text = stringResource(id = R.string.block_detail),
+                    text = stringResource(id = R.string.block_amount),
+                )
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.moveFocus(FocusDirection.Right)
+                }),
+            modifier = Modifier.weight(2f)
+        )
+
+        TextField(
+            value = comment,
+            onValueChange = { value -> comment = value },
+            label = {
+                Text(
+                    text = stringResource(id = R.string.block_comment),
                 )
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    viewModel.createBlock(selectedType, date.toLongTimestamp(), text)
+                    viewModel.createBlock(selectedType, date.toLongTimestamp(), amount.toDouble(), comment)
                     focusManager.clearFocus()
-                    text = ""
+                    comment = ""
                 }),
             modifier = Modifier.weight(2f)
         )
@@ -149,9 +164,9 @@ fun InputBlock(viewModel: BlockViewModel) {
     }
 
     Button(onClick = {
-        text = ""
         focusManager.clearFocus()
-        viewModel.createBlock(selectedType, date.toLongTimestamp(), text)
+        viewModel.createBlock(selectedType, date.toLongTimestamp(), amount.toDouble(), comment)
+        comment = ""
     }) {
         Text(stringResource(R.string.create_block))
     }

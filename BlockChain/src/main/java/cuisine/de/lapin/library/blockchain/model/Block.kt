@@ -1,41 +1,64 @@
 package cuisine.de.lapin.library.blockchain.model
 
-data class ProofData(
-    val index: Int,
-    val timeStamp: Long,
-    val content: Any,
-    val previousHash: String,
-    var nonce: Long = 0L
-)
+import cuisine.de.lapin.simpleblockchain.utils.sha256
 
-class Block (
-    val index: Int,
-    val timeStamp: Long,
-    val content: Any,
+data class Block(
+    val hash: String,
     val previousHash: String,
-    val nonce: Long,
-    val hash: String)
+    val height: UInt,
+    val timeStamp: Long,
+    val nonce: UInt,
+    val content: Any
+) {
+    companion object {
+        private const val INIT_NONCE = 0u
+        private const val ZERO = "0"
+
+        fun createBlock(
+            content: Any,
+            previousHash: String,
+            height: UInt,
+            timeStamp: Long,
+            difficulty: Int
+        ): Block {
+            var nonce: UInt = INIT_NONCE
+            var payload = ""
+            var hash = ""
+            while (true) {
+                payload = getPayload(content, previousHash, height, timeStamp, nonce)
+                hash = payload.sha256()
+                if (hash.startsWith(getStartZeros(difficulty))) {
+                    break
+                } else {
+                    nonce++
+                }
+            }
+
+            return Block(
+                hash = hash,
+                previousHash = previousHash,
+                height = height,
+                timeStamp = timeStamp,
+                nonce = nonce,
+                content = content
+            )
+        }
+
+        private fun getStartZeros(difficulty: Int): String {
+            return ZERO.repeat(difficulty)
+        }
+
+        fun getPayload(
+            content: Any,
+            previousHash: String,
+            height: UInt,
+            timeStamp: Long,
+            nonce: UInt
+        ): String {
+            return "$content$previousHash$height$timeStamp$nonce"
+        }
+    }
+
+}
 
 class Genesis(message: String)
-
-fun Block.toProofData(): ProofData {
-    return ProofData(
-        index = index,
-        timeStamp = timeStamp,
-        content = content,
-        previousHash = previousHash,
-        nonce = nonce
-    )
-}
-
-fun ProofData.toBlock(hash: String): Block {
-    return Block(
-        index = index,
-        timeStamp = timeStamp,
-        content = content,
-        previousHash = previousHash,
-        nonce = nonce,
-        hash = hash
-    )
-}
-

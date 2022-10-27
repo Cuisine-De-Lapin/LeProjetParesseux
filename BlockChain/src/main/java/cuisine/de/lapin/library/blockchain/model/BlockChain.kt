@@ -1,108 +1,74 @@
 package cuisine.de.lapin.library.blockchain.model
 
-import com.google.gson.Gson
 import cuisine.de.lapin.simpleblockchain.utils.sha256
+import cuisine.de.lapin.simpleblockchain.utils.toBlock
+import cuisine.de.lapin.simpleblockchain.utils.toJson
+import cuisine.de.lapin.simpleblockchain.utils.toPayLoad
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BlockChain(difficulty: Int) {
-    private val blocks = ArrayList<Block>()
-    private val startZeros = ZERO.repeat(difficulty)
-    private var onReady: (() -> Unit)? = null
+class BlockChain(
+    private var difficulty: Int,
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+) {
+    private val blocks = HashMap<String, String>()
+    private var lastestBlockHash: String = ""
+    private var height: UInt = 0u
 
-    suspend fun initChain(timeStamp: Long = System.currentTimeMillis()): Block {
-        val block = createBlock(
-            content = Genesis(GENESIS_EVENT),
-            timeStamp = timeStamp
-        )
-
-        onReady?.invoke()
-
-        return block
-    }
-
-    suspend fun createBlock(
-        content: Any,
-        timeStamp: Long = System.currentTimeMillis()
-    ): Block {
-        val blockData = ProofData(
-            index = (getPreviousBlock()?.index?.plus(1)) ?: 0,
-            timeStamp = timeStamp,
-            content = content,
-            previousHash = getPreviousBlock()?.hash ?: ZERO,
-            nonce = INIT_NONCE
-        )
-
-        while (true) {
-            if (Gson().toJson(blockData).sha256().startsWith(startZeros)) {
-                break
-            } else {
-                blockData.nonce++
-            }
-        }
-
-        return blockData.toBlock(Gson().toJson(blockData).sha256()).apply {
-            blocks.add(this)
+    fun addBlock(content: Any, timeStamp: Long = System.currentTimeMillis()) {
+        coroutineScope.launch {
+            val block =
+                Block.createBlock(content, lastestBlockHash, ++height, timeStamp, difficulty)
+            height = block.height
+            lastestBlockHash = block.hash
+            blocks[block.hash] = block.toJson()
         }
     }
 
-    private fun getPreviousBlock(): Block? {
-        return blocks.lastIndex.takeIf { it >= 0 }?.let {
-            blocks[it]
-        }
-    }
-
-    fun setOnReadyListener(onReady: (() -> Unit)?) {
-        this.onReady = onReady
-        if (blocks.size > 0) {
-            onReady?.invoke()
-        }
+    fun changeDifficulty(difficulty: Int) {
+        this.difficulty = difficulty
     }
 
     fun isValidChain(): Boolean {
-        var previousBlock: Block? = null
-
-        blocks.forEach { block ->
-            if (isBlockValid(block).not()) {
-                return false
+        var currentBlockHash: String? = lastestBlockHash
+        while (true) {
+            val block = blocks[currentBlockHash]?.toBlock() ?: break
+            if (block.content == GENESIS_EVENT) {
+                return true
             }
 
-            previousBlock?.let { previousBlock ->
-                if (previousBlock.hash != block.previousHash) {
-                    return false
-                }
-            }
-
-            previousBlock = block
+            currentBlockHash = block.previousHash
         }
 
-        return true
+        return false
     }
 
     private fun isBlockValid(block: Block): Boolean {
         return block.run {
-            hash == Gson().toJson(toProofData()).sha256()
+            hash == block.toPayLoad().sha256()
         }
     }
 
-    fun getAllBlocks(): List<Block> = blocks
+    fun showBlocks() {
+        for (block in blocks) {
+            println(block.value)
+        }
+    }
 
     companion object {
-        private const val ZERO = "0"
         private const val GENESIS_EVENT = "GenesisEvent"
-        private const val INIT_NONCE = 0L
 
         fun createBlockChain(
-            coroutineScope: CoroutineScope,
             difficulty: Int,
+            coroutineScope: CoroutineScope,
             timeStamp: Long = System.currentTimeMillis()
         ): BlockChain {
-            return BlockChain(difficulty).apply {
-                coroutineScope.launch {
-                    initChain(timeStamp)
-                }
+            return BlockChain(difficulty, coroutineScope).apply {
+                addBlock(GENESIS_EVENT, timeStamp)
             }
         }
+
     }
 
 }

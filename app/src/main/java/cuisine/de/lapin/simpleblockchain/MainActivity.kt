@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
 fun showBlockChain(viewModel: BlockViewModel) {
     Column {
         InputBlock(viewModel = viewModel)
-        BlockList(viewModel = viewModel)
+//        BlockList(viewModel = viewModel)
     }
 }
 
@@ -226,29 +226,29 @@ fun DateText(date: LocalDateTime) {
     Text(text = date.format(format))
 }
 
-@Composable
-fun BlockList(viewModel: BlockViewModel) {
-    val blocks by viewModel.blockChain.observeAsState()
-    val listState = rememberLazyListState()
-    val gson = GsonBuilder().setPrettyPrinting().create()
-
-    blocks?.let {
-        LazyColumn(state = listState) {
-            itemsIndexed(it) { _, item ->
-                Row {
-                    Text(
-                        text = gson.toJson(item),
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(Alignment.CenterVertically)
-                    )
-                }
-
-            }
-        }
-    }
-
-    LaunchedEffect(blocks) {
-        listState.scrollToItem(blocks?.size ?: 0)
-    }
-}
+//@Composable
+//fun BlockList(viewModel: BlockViewModel) {
+//    val blocks by viewModel.blockChain.observeAsState()
+//    val listState = rememberLazyListState()
+//    val gson = GsonBuilder().setPrettyPrinting().create()
+//
+//    blocks?.let {
+//        LazyColumn(state = listState) {
+//            itemsIndexed(it) { _, item ->
+//                Row {
+//                    Text(
+//                        text = gson.toJson(item),
+//                        modifier = Modifier
+//                            .weight(1f)
+//                            .align(Alignment.CenterVertically)
+//                    )
+//                }
+//
+//            }
+//        }
+//    }
+//
+//    LaunchedEffect(blocks) {
+//        listState.scrollToItem(blocks?.size ?: 0)
+//    }
+//}

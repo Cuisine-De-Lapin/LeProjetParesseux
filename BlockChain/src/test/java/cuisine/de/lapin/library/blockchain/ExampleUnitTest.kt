@@ -1,5 +1,6 @@
 package cuisine.de.lapin.library.blockchain
 
+import com.google.gson.Gson
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -12,6 +13,9 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+        val temp = Gson().fromJson("dfadfs", Sample::class.java)
+        println("$temp")
     }
+
+    data class Sample(val temp: String)
 }

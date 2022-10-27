@@ -23,22 +23,12 @@ class BlockViewModel @Inject constructor(
 
     fun createBlock(selectedType: BabyEventType, timeStamp: Long, amount: Double, comment: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.createBlock(
-                BabyEvent(selectedType, timeStamp, amount, comment),
-                System.currentTimeMillis()
-            )
-            updateBlockChain()
-        }
-    }
 
-    private fun updateBlockChain() {
-        _blockChain.postValue(ArrayList(repository.getAllBlocks()))
+        }
     }
 
     fun initBlockChain() {
-        repository.setOnReadyListener {
-            updateBlockChain()
-        }
+
     }
 
 }

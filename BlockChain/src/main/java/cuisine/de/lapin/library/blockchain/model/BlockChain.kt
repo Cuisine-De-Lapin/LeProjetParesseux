@@ -1,39 +1,55 @@
 package cuisine.de.lapin.library.blockchain.model
 
+import android.os.Looper
 import cuisine.de.lapin.simpleblockchain.utils.sha256
 import cuisine.de.lapin.simpleblockchain.utils.toBlock
 import cuisine.de.lapin.simpleblockchain.utils.toJson
 import cuisine.de.lapin.simpleblockchain.utils.toPayLoad
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class BlockChain(
-    private var difficulty: Int,
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    private var difficulty: Int
 ) {
-    private val blocks = HashMap<String, String>()
-    private var lastestBlockHash: String = ""
-    private var height: UInt = 0u
+    private val _blocks = HashMap<String, String>()
+    private var _lastestBlockHash: String = ""
+    private var _height: UInt = 0u
+
+    val blocks: Map<String, String> = _blocks
+    val lastestBlockHash
+        get() = _lastestBlockHash
+    val height
+        get() = _height
+
+    var onUpdateChain: ((Map<String, String>)->Unit)? = null
 
     fun addBlock(content: Any, timeStamp: Long = System.currentTimeMillis()) {
-        coroutineScope.launch {
-            val block =
-                Block.createBlock(content, lastestBlockHash, ++height, timeStamp, difficulty)
-            height = block.height
-            lastestBlockHash = block.hash
-            blocks[block.hash] = block.toJson()
+        assertNotMainThread()
+
+        val block =
+            Block.createBlock(content, _lastestBlockHash, ++_height, timeStamp, difficulty)
+        _height = block.height
+        _lastestBlockHash = block.hash
+        _blocks[block.hash] = block.toJson()
+        onUpdateChain?.invoke(_blocks)
+    }
+
+    private fun assertNotMainThread() {
+        if (Looper.getMainLooper().thread == Thread.currentThread()) {
+            throw java.lang.IllegalStateException(
+                "Cannot access blockchain on the main thread since"
+                        + " it may potentially lock the UI for a long period of time."
+            )
         }
     }
+
 
     fun changeDifficulty(difficulty: Int) {
         this.difficulty = difficulty
     }
 
     fun isValidChain(): Boolean {
-        var currentBlockHash: String? = lastestBlockHash
+        var currentBlockHash: String? = _lastestBlockHash
         while (true) {
-            val block = blocks[currentBlockHash]?.toBlock() ?: break
+            val block = _blocks[currentBlockHash]?.toBlock() ?: break
             if (block.content == GENESIS_EVENT) {
                 return true
             }
@@ -44,6 +60,22 @@ class BlockChain(
         return false
     }
 
+    fun toList(): List<Block> {
+        val resultArray = ArrayList<Block>()
+
+        var currentBlockHash: String? = _lastestBlockHash
+        while (true) {
+            val block = _blocks[currentBlockHash]?.toBlock() ?: return emptyList()
+            if (block.content == GENESIS_EVENT) {
+                break
+            }
+
+            currentBlockHash = block.previousHash
+        }
+
+        return resultArray
+    }
+
     private fun isBlockValid(block: Block): Boolean {
         return block.run {
             hash == block.toPayLoad().sha256()
@@ -51,7 +83,7 @@ class BlockChain(
     }
 
     fun showBlocks() {
-        for (block in blocks) {
+        for (block in _blocks) {
             println(block.value)
         }
     }
@@ -61,14 +93,12 @@ class BlockChain(
 
         fun createBlockChain(
             difficulty: Int,
-            coroutineScope: CoroutineScope,
             timeStamp: Long = System.currentTimeMillis()
         ): BlockChain {
-            return BlockChain(difficulty, coroutineScope).apply {
+            return BlockChain(difficulty).apply {
                 addBlock(GENESIS_EVENT, timeStamp)
             }
         }
-
     }
 
 }

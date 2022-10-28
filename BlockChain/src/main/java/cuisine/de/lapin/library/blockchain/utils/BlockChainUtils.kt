@@ -2,6 +2,7 @@ package cuisine.de.lapin.simpleblockchain.utils
 
 import com.google.gson.Gson
 import cuisine.de.lapin.library.blockchain.model.Block
+import cuisine.de.lapin.library.blockchain.model.BlockChain
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.time.LocalDateTime
@@ -34,3 +35,4 @@ fun String.toBlock(): Block? {
 fun Block.toPayLoad(): String {
     return Block.getPayload(content, previousHash, height, timeStamp, nonce)
 }
+

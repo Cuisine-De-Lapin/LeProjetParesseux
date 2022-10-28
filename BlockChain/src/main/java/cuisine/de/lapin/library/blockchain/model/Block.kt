@@ -60,5 +60,3 @@ data class Block(
     }
 
 }
-
-class Genesis(message: String)

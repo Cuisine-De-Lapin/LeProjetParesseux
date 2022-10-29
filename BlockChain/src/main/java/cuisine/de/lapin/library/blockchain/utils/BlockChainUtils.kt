@@ -32,12 +32,3 @@ fun String.toBlock(): Block? {
 fun Block.toPayLoad(): String {
     return Block.getPayload(content, previousHash, height, timeStamp, nonce)
 }
-
-internal fun assertNotMainThread(actionName: String) {
-    if (Looper.getMainLooper().thread == Thread.currentThread()) {
-        throw java.lang.IllegalStateException(
-            "Cannot $actionName on the main thread since"
-                    + " it may potentially lock the UI for a long period of time."
-        )
-    }
-}

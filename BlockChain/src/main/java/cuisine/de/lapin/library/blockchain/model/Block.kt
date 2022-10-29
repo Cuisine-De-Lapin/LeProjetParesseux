@@ -1,6 +1,5 @@
 package cuisine.de.lapin.library.blockchain.model
 
-import cuisine.de.lapin.library.blockchain.utils.assertNotMainThread
 import cuisine.de.lapin.library.blockchain.utils.sha256
 
 data class Block(
@@ -25,8 +24,6 @@ data class Block(
             var nonce: UInt = INIT_NONCE
             var payload = ""
             var hash = ""
-
-            assertNotMainThread("Create a Block")
 
             while (true) {
                 payload = getPayload(content, previousHash, height, timeStamp, nonce)

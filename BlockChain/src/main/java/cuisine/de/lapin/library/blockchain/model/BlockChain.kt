@@ -1,10 +1,11 @@
 package cuisine.de.lapin.library.blockchain.model
 
 import android.os.Looper
-import cuisine.de.lapin.simpleblockchain.utils.sha256
-import cuisine.de.lapin.simpleblockchain.utils.toBlock
-import cuisine.de.lapin.simpleblockchain.utils.toJson
-import cuisine.de.lapin.simpleblockchain.utils.toPayLoad
+import cuisine.de.lapin.library.blockchain.utils.assertNotMainThread
+import cuisine.de.lapin.library.blockchain.utils.sha256
+import cuisine.de.lapin.library.blockchain.utils.toBlock
+import cuisine.de.lapin.library.blockchain.utils.toJson
+import cuisine.de.lapin.library.blockchain.utils.toPayLoad
 
 class BlockChain(
     private var difficulty: Int
@@ -22,7 +23,7 @@ class BlockChain(
     var onUpdateChain: ((Map<String, String>)->Unit)? = null
 
     fun addBlock(content: Any, timeStamp: Long = System.currentTimeMillis()) {
-        assertNotMainThread()
+        assertNotMainThread("access blockchain")
 
         val block =
             Block.createBlock(content, _lastestBlockHash, ++_height, timeStamp, difficulty)
@@ -32,21 +33,12 @@ class BlockChain(
         onUpdateChain?.invoke(_blocks)
     }
 
-    private fun assertNotMainThread() {
-        if (Looper.getMainLooper().thread == Thread.currentThread()) {
-            throw java.lang.IllegalStateException(
-                "Cannot access blockchain on the main thread since"
-                        + " it may potentially lock the UI for a long period of time."
-            )
-        }
-    }
-
-
     fun changeDifficulty(difficulty: Int) {
         this.difficulty = difficulty
     }
 
     fun isValidChain(): Boolean {
+        assertNotMainThread("access blockchain")
         var currentBlockHash: String? = _lastestBlockHash
         while (true) {
             val block = _blocks[currentBlockHash]?.toBlock() ?: break
@@ -61,6 +53,7 @@ class BlockChain(
     }
 
     fun toList(): List<Block> {
+        assertNotMainThread("access blockchain")
         val resultArray = ArrayList<Block>()
 
         var currentBlockHash: String? = _lastestBlockHash

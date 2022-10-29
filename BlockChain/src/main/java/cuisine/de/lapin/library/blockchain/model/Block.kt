@@ -1,6 +1,7 @@
 package cuisine.de.lapin.library.blockchain.model
 
-import cuisine.de.lapin.simpleblockchain.utils.sha256
+import cuisine.de.lapin.library.blockchain.utils.assertNotMainThread
+import cuisine.de.lapin.library.blockchain.utils.sha256
 
 data class Block(
     val hash: String,
@@ -14,7 +15,7 @@ data class Block(
         private const val INIT_NONCE = 0u
         private const val ZERO = "0"
 
-        fun createBlock(
+        internal fun createBlock(
             content: Any,
             previousHash: String,
             height: UInt,
@@ -24,6 +25,9 @@ data class Block(
             var nonce: UInt = INIT_NONCE
             var payload = ""
             var hash = ""
+
+            assertNotMainThread("Create a Block")
+
             while (true) {
                 payload = getPayload(content, previousHash, height, timeStamp, nonce)
                 hash = payload.sha256()
@@ -48,7 +52,7 @@ data class Block(
             return ZERO.repeat(difficulty)
         }
 
-        fun getPayload(
+        internal fun getPayload(
             content: Any,
             previousHash: String,
             height: UInt,

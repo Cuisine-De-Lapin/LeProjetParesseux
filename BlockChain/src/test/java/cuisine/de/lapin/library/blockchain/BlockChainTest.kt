@@ -28,7 +28,7 @@ class BlockChainTest {
     fun is_BlockChain_Created_With_Other_Coroutines() = runTest(UnconfinedTestDispatcher()) {
         val blockChain = BlockChainImpl.createBlockChain(3)
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             println("Adding First Block")
             blockChain.addBlock("First Block", System.currentTimeMillis())
             println("Complete to Add First Block")
@@ -40,13 +40,13 @@ class BlockChainTest {
             println("Complete to Add Second Block")
         }.join()
 
-        CoroutineScope(Dispatchers.Default).launch {
+        launch {
             println("Adding Third Block")
             blockChain.addBlock("Third Block", System.currentTimeMillis())
             println("Complete to Add Third Block")
         }.join()
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Unconfined).launch {
             println("Adding Fourth Block")
             blockChain.addBlock("Fourth Block", System.currentTimeMillis())
             println("Complete to Add Fourth Block")

@@ -6,6 +6,7 @@ import cuisine.de.lapin.library.blockchain.utils.toBlock
 import cuisine.de.lapin.library.blockchain.utils.toJson
 import cuisine.de.lapin.library.blockchain.utils.toPayLoad
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
@@ -28,6 +29,7 @@ class BlockChainImpl(
 
     override suspend fun addBlock(content: Any, timeStamp: Long) {
         withContext(coroutineContext) {
+            println("$content ${Thread.currentThread().name}")
             Block.createBlock(content, _lastestBlockHash, ++_height, timeStamp, difficulty)
                 .let { block ->
                     _height = block.height

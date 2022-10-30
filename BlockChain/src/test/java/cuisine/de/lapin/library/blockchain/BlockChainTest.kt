@@ -1,32 +1,27 @@
 package cuisine.de.lapin.library.blockchain
 
-import android.os.Looper
-import cuisine.de.lapin.library.blockchain.model.BlockChainImpl
+import cuisine.de.lapin.library.blockchain.interfaces.BlockChain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Test
-import org.mockito.Mockito
 
 class BlockChainTest {
     @Test
     fun is_BlockChain_Created() = runTest(UnconfinedTestDispatcher()) {
-        val blockChain = BlockChainImpl.createBlockChain(3)
+        val blockChain = BlockChain.createBlockChain(3)
         blockChain.addBlock("First Block", System.currentTimeMillis())
         blockChain.addBlock("Second Block", System.currentTimeMillis())
         blockChain.addBlock("Third Block", System.currentTimeMillis())
-        blockChain.showBlocks()
+        println(blockChain.getBlockChainAsList())
         assert(blockChain.isValidChain())
     }
 
     @Test
     fun is_BlockChain_Created_With_Other_Coroutines() = runTest(UnconfinedTestDispatcher()) {
-        val blockChain = BlockChainImpl.createBlockChain(3)
+        val blockChain = BlockChain.createBlockChain(3)
 
         CoroutineScope(Dispatchers.IO).launch {
             println("Adding First Block")
@@ -52,7 +47,7 @@ class BlockChainTest {
             println("Complete to Add Fourth Block")
         }.join()
 
-        blockChain.showBlocks()
+        println(blockChain.getBlockChainAsList())
         assert(blockChain.isValidChain())
     }
 }

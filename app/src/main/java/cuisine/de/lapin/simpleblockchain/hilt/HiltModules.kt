@@ -1,7 +1,7 @@
 package cuisine.de.lapin.simpleblockchain.hilt
 
+import cuisine.de.lapin.library.blockchain.interfaces.BlockChain
 import cuisine.de.lapin.simpleblockchain.BuildConfig
-import cuisine.de.lapin.library.blockchain.model.BlockChainImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 object BlockChainModule {
     @Singleton
     @Provides
-    fun provideBlockChain(): BlockChainImpl {
-        return BlockChainImpl.createBlockChain(BuildConfig.BLOCKCHAIN_DIFFICULTY, System.currentTimeMillis())
+    fun provideBlockChain(): BlockChain {
+        return BlockChain.createBlockChain(BuildConfig.BLOCKCHAIN_DIFFICULTY, System.currentTimeMillis())
     }
 }

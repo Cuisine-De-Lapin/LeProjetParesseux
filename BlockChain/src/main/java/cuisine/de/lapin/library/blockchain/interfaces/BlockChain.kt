@@ -9,6 +9,7 @@ interface BlockChain {
     suspend fun isValidChain(): Boolean
     suspend fun getBlockChainAsList(): List<Block>
     fun setOnUpdateChainListener(onUpdateChain: (Map<String, String>)->Unit)
+    fun getBlock(hash: String): Block?
 
     companion object {
         fun createBlockChain(

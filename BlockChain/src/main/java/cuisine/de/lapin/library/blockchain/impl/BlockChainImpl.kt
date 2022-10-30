@@ -77,7 +77,7 @@ internal class BlockChainImpl(
     override suspend fun getBlockChainAsList(): List<Block> = withContext(coroutineContext) {
         val resultArray = ArrayList<Block>()
 
-        var currentBlockHash: String? = _lastestBlockHash
+        var currentBlockHash: String = _lastestBlockHash
         while (true) {
             //prevHash를 받아서 조회를 했는데, 블록이 없는경우는 끊어진 블록이라 유효하지 않은 블록으로 간주함 - 이건 어떻게 처리할지는 고민 필요.
             val block = getBlock(currentBlockHash) ?: return@withContext emptyList()
@@ -92,7 +92,7 @@ internal class BlockChainImpl(
         return@withContext resultArray
     }
 
-    private fun getBlock(hash: String?): Block? {
+    override fun getBlock(hash: String): Block? {
         return _blocks[hash]?.toBlock()
     }
 

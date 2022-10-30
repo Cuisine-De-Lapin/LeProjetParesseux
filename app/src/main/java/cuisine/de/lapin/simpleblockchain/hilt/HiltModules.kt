@@ -2,6 +2,9 @@ package cuisine.de.lapin.simpleblockchain.hilt
 
 import cuisine.de.lapin.library.blockchain.interfaces.BlockChain
 import cuisine.de.lapin.simpleblockchain.BuildConfig
+import cuisine.de.lapin.simpleblockchain.repository.BlockRepository
+import cuisine.de.lapin.simpleblockchain.repository.BlockRepositoryImpl
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

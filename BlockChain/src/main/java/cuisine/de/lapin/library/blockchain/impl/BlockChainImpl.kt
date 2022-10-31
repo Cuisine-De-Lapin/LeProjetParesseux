@@ -16,7 +16,8 @@ import kotlinx.coroutines.withContext
 
 internal class BlockChainImpl(
     private var difficulty: Int,
-    private val timeStamp: Long = System.currentTimeMillis()
+    private val timeStamp: Long = System.currentTimeMillis(),
+    threadName: String? = null
 ) : BlockChain {
     companion object {
         private const val GENESIS_EVENT = "GenesisEvent"
@@ -25,7 +26,7 @@ internal class BlockChainImpl(
     private val _blocks = HashMap<String, String>()
     private var _lastestBlockHash: String = ""
     private var _height: UInt = 0u
-    private val coroutineContext = Dispatchers.IO // newSingleThreadContext을 쓰려고 했는데, 쓰레드를 close하기가 마땅치 않아서 runblocking으로 변경
+    private val coroutineContext = threadName ?.let { newSingleThreadContext(threadName) }  ?: Dispatchers.IO // newSingleThreadContext을 쓰려고 했는데, 쓰레드를 close하기가 마땅치 않아서 runblocking으로 변경
 
     val blocks: Map<String, String> = _blocks
     val lastestBlockHash

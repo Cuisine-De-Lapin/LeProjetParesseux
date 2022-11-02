@@ -22,7 +22,7 @@ internal fun createBlock(
     var hash = ""
 
     while (true) {
-        payload = getPayload(content, previousHash, height, timeStamp, nonce)
+        payload = getPayload(content, previousHash, height, timeStamp, difficulty, nonce)
         hash = payload.sha256()
         if (hash.startsWith(getStartZeros(difficulty))) {
             break
@@ -37,6 +37,7 @@ internal fun createBlock(
         height = height,
         timeStamp = timeStamp,
         nonce = nonce,
+        difficulty = difficulty,
         content = content
     )
 }
@@ -46,7 +47,7 @@ private fun getStartZeros(difficulty: Int): String {
 }
 
 internal fun getPayload(block: Block): String {
-    return getPayload(block.content, block.previousHash, block.height, block.timeStamp, block.nonce)
+    return getPayload(block.content, block.previousHash, block.height, block.timeStamp, block.difficulty, block.nonce)
 }
 
 internal fun getPayload(
@@ -54,7 +55,8 @@ internal fun getPayload(
     previousHash: String,
     height: UInt,
     timeStamp: Long,
+    difficulty: Int,
     nonce: UInt
 ): String {
-    return "$content$previousHash$height$timeStamp$nonce"
+    return "$content$previousHash$height$timeStamp$difficulty$nonce"
 }

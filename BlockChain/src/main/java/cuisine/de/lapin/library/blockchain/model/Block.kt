@@ -6,5 +6,6 @@ data class Block(
     val height: UInt,
     val timeStamp: Long,
     val nonce: UInt,
+    val difficulty: Int,
     val content: Any
 )

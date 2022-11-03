@@ -17,6 +17,6 @@ object BlockChainModule {
     @Singleton
     @Provides
     fun provideBlockChain(): BlockChain {
-        return BlockChain.createBlockChain(BuildConfig.BLOCKCHAIN_DIFFICULTY.toUInt(), System.currentTimeMillis())
+        return BlockChain.createBlockChain(BuildConfig.BLOCKCHAIN_DIFFICULTY.toUInt(), System.currentTimeMillis(), false)
     }
 }

@@ -12,10 +12,11 @@ interface BlockChain {
 
     companion object {
         fun createBlockChain(
-            difficulty: UInt = BlockChainImpl.DEFAULT_DIFFICULTY,
-            timeStamp: Long = System.currentTimeMillis()
+            defaultDifficulty: UInt = BlockChainImpl.DEFAULT_DIFFICULTY,
+            timeStamp: Long = System.currentTimeMillis(),
+            useDifficulty: Boolean = true
         ): BlockChain {
-            return BlockChainImpl(difficulty, timeStamp)
+            return BlockChainImpl(defaultDifficulty, timeStamp, useDifficulty)
         }
     }
 }

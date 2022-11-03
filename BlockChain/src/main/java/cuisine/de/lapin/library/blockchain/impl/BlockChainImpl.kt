@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 internal class BlockChainImpl(
     private val defaultDifficulty: UInt = DEFAULT_DIFFICULTY,
     private val timeStamp: Long = System.currentTimeMillis(),
+    private val useDifficulty: Boolean = true
 ) : BlockChain {
     companion object {
         const val DEFAULT_DIFFICULTY = 2u
@@ -57,7 +58,7 @@ internal class BlockChainImpl(
     private fun calculateDifficulty(): UInt {
         val currentBlock = getBlock(_lastestBlockHash)
 
-        if (currentBlock == null || _height == 0u) {
+        if (useDifficulty.not() || currentBlock == null || _height == 0u) {
             return defaultDifficulty
         }
 

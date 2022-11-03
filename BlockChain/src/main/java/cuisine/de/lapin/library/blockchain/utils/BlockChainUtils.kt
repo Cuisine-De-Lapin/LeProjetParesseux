@@ -15,7 +15,7 @@ internal fun createBlock(
     previousHash: String,
     height: UInt,
     timeStamp: Long,
-    difficulty: Int
+    difficulty: UInt
 ): Block {
     var nonce: UInt = INIT_NONCE
     var payload = ""
@@ -42,8 +42,8 @@ internal fun createBlock(
     )
 }
 
-private fun getStartZeros(difficulty: Int): String {
-    return ZERO.repeat(difficulty)
+private fun getStartZeros(difficulty: UInt): String {
+    return ZERO.repeat(difficulty.toInt())
 }
 
 internal fun getPayload(block: Block): String {
@@ -55,7 +55,7 @@ internal fun getPayload(
     previousHash: String,
     height: UInt,
     timeStamp: Long,
-    difficulty: Int,
+    difficulty: UInt,
     nonce: UInt
 ): String {
     return "$content$previousHash$height$timeStamp$difficulty$nonce"

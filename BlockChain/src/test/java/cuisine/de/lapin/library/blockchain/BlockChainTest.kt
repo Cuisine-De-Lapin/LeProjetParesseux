@@ -11,7 +11,7 @@ import org.junit.Test
 class BlockChainTest {
     @Test
     fun is_BlockChain_Created() = runTest(UnconfinedTestDispatcher()) {
-        val blockChain = BlockChain.createBlockChain(3)
+        val blockChain = BlockChain.createBlockChain(3u)
         blockChain.addBlock("First Block", System.currentTimeMillis())
         blockChain.addBlock("Second Block", System.currentTimeMillis())
         blockChain.addBlock("Third Block", System.currentTimeMillis())
@@ -21,7 +21,7 @@ class BlockChainTest {
 
     @Test
     fun is_BlockChain_Created_With_Other_Coroutines() = runTest(UnconfinedTestDispatcher()) {
-        val blockChain = BlockChain.createBlockChain(3)
+        val blockChain = BlockChain.createBlockChain(3u)
 
         CoroutineScope(Dispatchers.IO).launch {
             println("Adding First Block")

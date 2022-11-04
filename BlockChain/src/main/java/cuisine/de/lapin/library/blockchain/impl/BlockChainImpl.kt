@@ -1,6 +1,5 @@
 package cuisine.de.lapin.library.blockchain.impl
 
-import android.util.Log
 import cuisine.de.lapin.library.blockchain.interfaces.BlockChain
 import cuisine.de.lapin.library.blockchain.model.Block
 import cuisine.de.lapin.library.blockchain.utils.createBlock
@@ -8,12 +7,19 @@ import cuisine.de.lapin.library.blockchain.utils.getPayload
 import cuisine.de.lapin.library.blockchain.utils.sha256
 import cuisine.de.lapin.library.blockchain.utils.toBlock
 import cuisine.de.lapin.library.blockchain.utils.toJson
+import jetbrains.exodus.bindings.StringBinding.entryToString
+import jetbrains.exodus.bindings.StringBinding.stringToEntry
+import jetbrains.exodus.env.ContextualEnvironment
+import jetbrains.exodus.env.Environments.newContextualInstance
+import jetbrains.exodus.env.StoreConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 
+
 internal class BlockChainImpl(
+    databasePath: String,
     private val defaultDifficulty: UInt = DEFAULT_DIFFICULTY,
     private val timeStamp: Long = System.currentTimeMillis(),
     private val useDifficulty: Boolean = true
@@ -25,15 +31,16 @@ internal class BlockChainImpl(
         private const val ALLOWED_RANGE = 120 // 2 minutes
         private const val DIFFICULTY_INTERVAL = 5 // check block per 5 blocks
         private const val THREAD_NAME = "BLOCKCHAIN_THREAD"
+        private const val DATABASE_FILE_NAME = "/.leparesseux"
+        private const val STORE_NAME = "LeParesseux"
     }
 
-    private val _blocks = HashMap<String, String>()
     private var _lastestBlockHash: String = ""
     private var _height: UInt = 0u
     private var difficulty = defaultDifficulty
     private val coroutineContext = newSingleThreadContext(THREAD_NAME)
-
-    private var onUpdateChain: ((Map<String, String>) -> Unit)? = null
+    private val env: ContextualEnvironment = newContextualInstance("$databasePath$DATABASE_FILE_NAME")
+    private val store = env.openStore(STORE_NAME, StoreConfig.WITHOUT_DUPLICATES)
 
     init {
         CoroutineScope(coroutineContext).launch {
@@ -49,8 +56,9 @@ internal class BlockChainImpl(
                 .let { block ->
                     _height = block.height
                     _lastestBlockHash = block.hash
-                    _blocks[block.hash] = block.toJson()
-                    onUpdateChain?.invoke(_blocks)
+                    val txn = env.beginTransaction()
+                    store.add(stringToEntry(block.hash), stringToEntry(block.toJson()))
+                    txn.commit()
                 }
         }
     }
@@ -90,17 +98,18 @@ internal class BlockChainImpl(
     }
 
     override suspend fun isValidChain(): Boolean = withContext(coroutineContext) {
-        var currentBlockHash: String? = _lastestBlockHash
+        val txn = env.beginTransaction()
+        var currentBlockHash: String = _lastestBlockHash
         var currentHeight: UInt = _height
         while (true) {
-            val block = _blocks[currentBlockHash]?.toBlock() ?: break
+            val entryBlock = store.get(stringToEntry(currentBlockHash)) ?: break
+            val block = entryToString(entryBlock).toBlock() ?: break
             if (--currentHeight == 0u) {
                 return@withContext true
             }
 
             currentBlockHash = block.previousHash
         }
-
         return@withContext false
     }
 
@@ -123,7 +132,8 @@ internal class BlockChainImpl(
     }
 
     override fun getBlock(hash: String): Block? {
-        return _blocks[hash]?.toBlock()
+        env.beginTransaction()
+        return store.get(stringToEntry(hash))?.let { entryToString(it) }?.toBlock()
     }
 
     private fun isBlockValid(block: Block): Boolean {
@@ -132,7 +142,7 @@ internal class BlockChainImpl(
         }
     }
 
-    override fun setOnUpdateChainListener(onUpdateChain: (Map<String, String>) -> Unit) {
-        this.onUpdateChain = onUpdateChain
+    override fun close() {
+        env.close()
     }
 }

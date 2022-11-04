@@ -14,3 +14,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+.lepresseux
+/.leparesseux
+/.leparesseux/00000000000.xd
+/.leparesseux/xd.lck
+/src/androidTest/.leparesseux/00000000000.xd
+/src/androidTest/.leparesseux/xd.lck
+/src/androidTest/.leparesseux

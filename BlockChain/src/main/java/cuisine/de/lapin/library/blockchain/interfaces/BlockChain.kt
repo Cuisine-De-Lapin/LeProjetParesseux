@@ -7,16 +7,17 @@ interface BlockChain {
     suspend fun addBlock(content: Any, timeStamp: Long)
     suspend fun isValidChain(): Boolean
     suspend fun getBlockChainAsList(): List<Block>
-    fun setOnUpdateChainListener(onUpdateChain: (Map<String, String>)->Unit)
     fun getBlock(hash: String): Block?
+    fun close()
 
     companion object {
         fun createBlockChain(
+            dataBasePath: String,
             defaultDifficulty: UInt = BlockChainImpl.DEFAULT_DIFFICULTY,
             timeStamp: Long = System.currentTimeMillis(),
             useDifficulty: Boolean = true
         ): BlockChain {
-            return BlockChainImpl(defaultDifficulty, timeStamp, useDifficulty)
+            return BlockChainImpl(dataBasePath, defaultDifficulty, timeStamp, useDifficulty)
         }
     }
 }

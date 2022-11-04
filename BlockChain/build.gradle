@@ -27,6 +27,8 @@ android {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'org.jetbrains.xodus:xodus-openAPI:2.0.1'
+    implementation 'org.jetbrains.xodus:xodus-environment:2.0.1'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation 'junit:junit:4.13.2'

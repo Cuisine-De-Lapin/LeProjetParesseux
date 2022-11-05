@@ -1,5 +1,6 @@
 package cuisine.de.lapin.library.blockchain.utils
 
+import android.util.Log
 import com.google.gson.Gson
 import cuisine.de.lapin.library.blockchain.model.Block
 
@@ -30,6 +31,8 @@ internal fun createBlock(
             nonce++
         }
     }
+
+    Log.i("BlockChainAdd", "$hash $previousHash $height $timeStamp $nonce $difficulty $content")
 
     return Block(
         hash = hash,

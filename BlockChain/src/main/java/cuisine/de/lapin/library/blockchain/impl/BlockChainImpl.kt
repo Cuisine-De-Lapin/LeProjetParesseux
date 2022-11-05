@@ -33,17 +33,31 @@ internal class BlockChainImpl(
         private const val THREAD_NAME = "BLOCKCHAIN_THREAD"
         private const val DATABASE_FILE_NAME = "/.leparesseux"
         private const val STORE_NAME = "LeParesseux"
+        private const val STORE_CHAIN_INFO = "ChainInfo"
+        private const val LASTEST_BLOCK_CHAIN = "lastestBlockChain"
+        private const val BLOCK_HEIGHT = "blockHeight"
     }
 
-    private var _lastestBlockHash: String = ""
-    private var _height: UInt = 0u
-    private var difficulty = defaultDifficulty
     private val coroutineContext = newSingleThreadContext(THREAD_NAME)
     private val env: ContextualEnvironment = newContextualInstance("$databasePath$DATABASE_FILE_NAME")
     private val store = env.openStore(STORE_NAME, StoreConfig.WITHOUT_DUPLICATES)
+    private val chainInfo = env.openStore(STORE_CHAIN_INFO, StoreConfig.WITHOUT_DUPLICATES)
+    private val _lastestBlockHash: String
+        get() {
+            env.beginTransaction()
+            return chainInfo.get(stringToEntry(LASTEST_BLOCK_CHAIN))?.let { entryToString(it) }
+                ?: ""
+        }
+    private val _height: UInt
+        get() {
+            env.beginTransaction()
+            return chainInfo.get(stringToEntry(BLOCK_HEIGHT))?.let { entryToString(it).toUInt() } ?: 0u
+        }
+    private var difficulty = defaultDifficulty
 
     init {
         CoroutineScope(coroutineContext).launch {
+            if (_height > 0u) return@launch
             withContext(coroutineContext) {
                 addBlock(GENESIS_EVENT, timeStamp)
             }
@@ -52,12 +66,12 @@ internal class BlockChainImpl(
 
     override suspend fun addBlock(content: Any, timeStamp: Long) {
         withContext(coroutineContext) {
-            createBlock(content, _lastestBlockHash, ++_height, timeStamp, calculateDifficulty())
+            createBlock(content, _lastestBlockHash, _height + 1u, timeStamp, calculateDifficulty())
                 .let { block ->
-                    _height = block.height
-                    _lastestBlockHash = block.hash
                     val txn = env.beginTransaction()
-                    store.add(stringToEntry(block.hash), stringToEntry(block.toJson()))
+                    store.put(txn, stringToEntry(block.hash), stringToEntry(block.toJson()))
+                    chainInfo.put(txn, stringToEntry(LASTEST_BLOCK_CHAIN), stringToEntry(block.hash))
+                    chainInfo.put(txn, stringToEntry(BLOCK_HEIGHT), stringToEntry(block.height.toString()))
                     txn.commit()
                 }
         }
@@ -98,9 +112,9 @@ internal class BlockChainImpl(
     }
 
     override suspend fun isValidChain(): Boolean = withContext(coroutineContext) {
-        val txn = env.beginTransaction()
         var currentBlockHash: String = _lastestBlockHash
         var currentHeight: UInt = _height
+        val txn = env.beginTransaction()
         while (true) {
             val entryBlock = store.get(stringToEntry(currentBlockHash)) ?: break
             val block = entryToString(entryBlock).toBlock() ?: break

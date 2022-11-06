@@ -129,7 +129,7 @@ fun InputBlock(viewModel: BlockViewModel) {
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    viewModel.addBlock(selectedType, date.toLongTimestamp(), amount.toDouble(), comment)
+                    viewModel.addBlock(selectedType, date.toLongTimestamp(), amount.amoutToDouble(), comment)
                     focusManager.clearFocus()
                     comment = ""
                 }),
@@ -170,10 +170,18 @@ fun InputBlock(viewModel: BlockViewModel) {
 
     Button(onClick = {
         focusManager.clearFocus()
-        viewModel.addBlock(selectedType, date.toLongTimestamp(), amount.toDouble(), comment)
+        viewModel.addBlock(selectedType, date.toLongTimestamp(), amount.amoutToDouble(), comment)
         comment = ""
     }) {
         Text(stringResource(R.string.create_block))
+    }
+}
+
+private fun String.amoutToDouble(): Double {
+    try {
+        return toDouble()
+    } catch (exception: Exception) {
+        return 0.0
     }
 }
 

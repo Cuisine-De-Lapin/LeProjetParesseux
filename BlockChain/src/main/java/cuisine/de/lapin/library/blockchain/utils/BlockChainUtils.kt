@@ -3,6 +3,7 @@ package cuisine.de.lapin.library.blockchain.utils
 import android.util.Log
 import com.google.gson.Gson
 import cuisine.de.lapin.library.blockchain.model.Block
+import cuisine.de.lapin.library.blockchain.model.Tx
 
 private const val INIT_NONCE = 0u
 private const val ZERO = "0"
@@ -32,8 +33,6 @@ internal fun createBlock(
         }
     }
 
-    Log.i("BlockChainAdd", "$hash $previousHash $height $timeStamp $nonce $difficulty $content")
-
     return Block(
         hash = hash,
         previousHash = previousHash,
@@ -62,4 +61,9 @@ internal fun getPayload(
     nonce: UInt
 ): String {
     return "$content$previousHash$height$timeStamp$difficulty$nonce"
+}
+
+internal fun getTxId(timeStamp: Long, inTxs: List<Tx.InputTx>, outTxs: List<Tx.OutPutTx>): String {
+    val payLoad = "$timeStamp$inTxs$outTxs"
+    return payLoad.sha256()
 }

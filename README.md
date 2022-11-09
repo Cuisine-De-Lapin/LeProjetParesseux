@@ -28,15 +28,15 @@ And repeat
 until finished
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+TBD 
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+TBD 
 
 ### Break down into end to end tests
 
-Explain what these tests test and why
+TBD 
 
 ```
 Give an example
@@ -73,8 +73,7 @@ TBD
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
+TBD 
 ## Acknowledgments
 
 TBD

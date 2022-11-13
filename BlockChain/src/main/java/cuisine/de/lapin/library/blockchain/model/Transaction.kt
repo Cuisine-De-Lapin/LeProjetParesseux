@@ -7,7 +7,11 @@ data class Transaction(
     val outTxs: List<Tx.OutPutTx>
 )
 
-sealed class Tx(val owner: String, val amount: UInt) {
-    class InputTx
-    class OutPutTx
+sealed class Tx {
+    data class InputTx (val txId: String, val index: Int, val owner: String)
+    class OutPutTx (val owner: String, val amount: UInt)
+}
+
+class Mempool {
+    val transactions = ArrayList<Transaction>()
 }
